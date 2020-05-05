@@ -181,7 +181,7 @@ np.random.seed(42)
 
 noise_magnitude = np.random.normal(
     loc=0,
-    scale=np.exp(d_rlog.real) * 0.02
+    scale=np.exp(d_rlog.real) * 0.04
 )
 
 # absolute phase error
@@ -197,8 +197,9 @@ d_rlog = np.log(np.exp(d_rlog.real) + noise_magnitude) + 1j * (
 rmag_linear = np.exp(d_rlog.real)
 err_mag_linear = rmag_linear * 0.01 + np.min(rmag_linear)
 err_mag_log = np.abs(1 / rmag_linear * err_mag_linear)
+err_mag_log = np.ones_like(rmag_linear) * 0.02
 
-Wd = np.diag(err_mag_log)
+Wd = np.diag(1.0 / err_mag_log)
 WdTwd = Wd.conj().dot(Wd)
 # import IPython
 # IPython.embed()
@@ -206,13 +207,36 @@ WdTwd = Wd.conj().dot(Wd)
 ###############################################################################
 # naive inversion in log-log
 
+
+def plot_inv_pars(filename, d, response, Wd):
+    fig, axes = plt.subplots(1, 2, figsize=(20 / 2.54, 10 / 2.54))
+
+    psi = Wd.dot(d - response)
+
+    ert.showERTData(
+        scheme, vals=psi.real, ax=axes[0],
+        label=r"$(d' - f') / \epsilon$"
+    )
+    ert.showERTData(
+        scheme, vals=psi.imag, ax=axes[1],
+        label=r"$(d'' - f'') / \epsilon$"
+    )
+
+    fig.tight_layout()
+    fig.savefig(filename, dpi=300)
+
+
 m_old = np.log(start_model)
 d = np.log(pg.utils.toComplex(data_rre_rim))
 response = np.log(pg.utils.toComplex(f_0))
 J = J0 / np.exp(response[:, np.newaxis]) * np.exp(m_old)[np.newaxis, :]
-lam = 20
+# lam = 20
+lam = 100
 
-for i in range(2):
+plot_inv_pars('stats_it0.jpg', d, response, Wd)
+
+
+for i in range(4):
     print('-' * 80)
     print('Iteration {}'.format(i + 1))
 
@@ -259,13 +283,13 @@ for i in range(2):
     fig.tight_layout()
     fig.savefig('test_inv_it_{}.jpg'.format(i + 1), dpi=300)
 
-    exit()
-
     m_old = m1
     # Response for Starting model
     m_re_im = pg.utils.squeezeComplex(np.exp(m_old))
     response_re_im = np.array(fop.response(m_re_im))
     response = np.log(pg.utils.toComplex(response_re_im))
+
+    plot_inv_pars('stats_it{}.jpg'.format(i + 1), d, response, Wd)
 
     J_block = fop.createJacobian(m_re_im)
     J_re = np.array(J_block.matrices()[0])
