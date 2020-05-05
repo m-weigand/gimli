@@ -29,6 +29,7 @@ scheme = ert.createERTData(
     elecs=np.linspace(start=0, stop=50, num=51),
     schemeName='dd'
 )
+scheme.set('k', [1 for x in range(scheme.size())])
 
 ###############################################################################
 # Mesh generation
@@ -91,6 +92,9 @@ data = ert.simulate(
 # Visualize the modeled data
 # Convert magnitude and phase into a complex apparent resistivity
 rho_a_complex = data['rhoa'].array() * np.exp(1j * data['phia'].array())
+np.savetxt(
+    'data_rre_rim.dat', np.hstack((rho_a_complex.real, rho_a_complex.imag))
+)
 
 # Please note the apparent negative phases!
 fig, axes = plt.subplots(2, 2, figsize=(16 / 2.54, 16 / 2.54))
