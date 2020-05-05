@@ -29,6 +29,11 @@ scheme = ert.createERTData(
     elecs=np.linspace(start=0, stop=50, num=51),
     schemeName='dd'
 )
+m = scheme['m']
+n = scheme['n']
+scheme['m'] = n
+scheme['n'] = m
+
 scheme.set('k', [1 for x in range(scheme.size())])
 
 ###############################################################################
@@ -60,8 +65,8 @@ pg.show(mesh)
 # utility function :func:`pygimli.utils.complex.toComplex`.
 rhomap = [
     [1, pg.utils.complex.toComplex(100, 0 / 1000)],
-    # Magnitude: 100 ohm m, Phase: -50 mrad
-    [2, pg.utils.complex.toComplex(100, -50 / 1000)],
+    # Magnitude: 50 ohm m, Phase: -50 mrad
+    [2, pg.utils.complex.toComplex(50, -50 / 1000)],
 ]
 
 # For visualization, map the rhomap into the actual mesh, resulting in a rho
@@ -95,6 +100,7 @@ rho_a_complex = data['rhoa'].array() * np.exp(1j * data['phia'].array())
 np.savetxt(
     'data_rre_rim.dat', np.hstack((rho_a_complex.real, rho_a_complex.imag))
 )
+exit()
 
 # Please note the apparent negative phases!
 fig, axes = plt.subplots(2, 2, figsize=(16 / 2.54, 16 / 2.54))
