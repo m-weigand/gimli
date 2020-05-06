@@ -25,6 +25,7 @@ from pygimli.physics.ert.ert import ERTModelling
 import pygimli as pg
 import pygimli.meshtools as mt
 import pygimli.physics.ert as ert
+###############################################################################
 
 ###############################################################################
 # * generate mesh
@@ -165,7 +166,9 @@ rm.fillConstraints(Wm)
 Wm = pg.utils.sparseMatrix2coo(Wm)
 ###############################################################################
 # read-in data and determine error parameters
-data_rre_rim = np.loadtxt('data_rre_rim.dat')
+filename = pg.getExampleFile(
+    'CR/synthetic_modeling/data_rre_rim.dat', load=False, verbose=True)
+data_rre_rim = np.loadtxt(filename)
 N = int(data_rre_rim.size / 2)
 d_rcomplex = data_rre_rim[:N] + 1j * data_rre_rim[N:]
 
